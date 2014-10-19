@@ -1,4 +1,4 @@
 Remember
 ========
 
-Distributed-cache strategy for ASP.NET websites
+Distributed and local caching strategy for ASP.NET websites
