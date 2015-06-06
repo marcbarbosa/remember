@@ -1,27 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Remember.Interfaces;
+using System.Runtime.Caching;
 using Xunit;
 
 namespace Remember.Tests
 {
     public class RememberTests
     {
-        public class SaveAsync
+        public class Integration
         {
+            private readonly IRemember remember = Remember.Instance;
+
             [Fact]
-            public async void Save()
+            public void CallingAllMethods()
             {
-                var innerUser = new User { Email = "inneruser@gmail.com", Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==" };
-                var expected = new User { Email = "user@domain.com", Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==", InnerUser = innerUser };
-                
-                await Remember.Instance.SaveAsync<User>(expected.Email, expected);
+                var cacheKey = "user@domain.com";
+                var expectedInnerUser = new User { Email = "inneruser@domain.com", Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==" };
+                var expectedUser = new User { Email = cacheKey, Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==", InnerUser = expectedInnerUser };
 
-                var actual = Remember.Instance.GetAsync<User>(expected.Email).Result;
+                var actual = remember.GetAsync<User>(cacheKey).Result;
+                Assert.Null(actual);
 
-                Assert.Equal(expected.Password, actual.Password);
+                remember.SaveAsync<User>(cacheKey, expectedUser).Wait();
+                actual = remember.GetAsync<User>(cacheKey).Result;
+                Assert.NotNull(actual);
+                Assert.NotNull(actual.InnerUser);
+                Assert.Equal(expectedUser.Email, actual.Email);
+                Assert.Equal(expectedUser.Password, actual.Password);
+                Assert.Equal(expectedInnerUser.Email, actual.InnerUser.Email);
+                Assert.Equal(expectedInnerUser.Password, actual.InnerUser.Password);
+
+                MemoryCache.Default.Remove(cacheKey);
+                actual = remember.GetAsync<User>(cacheKey).Result;
+                Assert.NotNull(actual);
+
+                remember.DeleteAsync(cacheKey).Wait();
+                actual = remember.GetAsync<User>(cacheKey).Result;
+                Assert.Null(actual);
             }
 
             public class User

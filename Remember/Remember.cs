@@ -2,28 +2,57 @@
 using Remember.Interfaces;
 using StackExchange.Redis;
 using System;
+using System.Configuration;
 using System.IO;
-using System.Text;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Remember
 {
     public class Remember : IRemember
     {
+        private static ConnectionMultiplexer redis;
+
         private static volatile Remember instance;
         private static object syncRoot = new object();
-
-        private static ConnectionMultiplexer redis;
+        
+        private readonly RememberConfig rememberConfig;
+        private const string CONFIG_SECTION = "remember";
+        
+        private const string DELETE_CHANNEL = "remember_delete_channel";
 
         public Remember()
         {
-            redis = ConnectionMultiplexer.Connect("10.0.1.7");
+            rememberConfig = ConfigurationManager.GetSection(CONFIG_SECTION) as RememberConfig;
+
+            redis = CreateRedisConnectionMultiplexer();
+
+            if (redis.IsConnected)
+            {
+                redis.GetSubscriber().Subscribe(DELETE_CHANNEL, (channel, cacheKey) => MemoryCache.Default.Remove(cacheKey));
+            }
+        }
+
+        private ConnectionMultiplexer CreateRedisConnectionMultiplexer()
+        { 
+            var redisConfigurationOptions = new ConfigurationOptions 
+            { 
+                DefaultDatabase = rememberConfig.Database, 
+                AbortOnConnectFail = false, 
+                Password = rememberConfig.Password 
+            };
+
+            foreach (EndpointElement endpoint in rememberConfig.Endpoints)
+	        {
+                redisConfigurationOptions.EndPoints.Add(endpoint.Host, endpoint.Port);
+	        }
+
+            return ConnectionMultiplexer.Connect(redisConfigurationOptions);
         }
 
         public static Remember Instance
         {
-            get 
+            get
             {
                 if (instance == null)
                 {
@@ -40,36 +69,54 @@ namespace Remember
             }
         }
 
-        public async Task SaveAsync<T>(string cacheKey, T obj)
+        public async Task SaveAsync<T>(string cacheKey, T cacheItem)
         {
-            HttpRuntime.Cache.Insert(cacheKey, obj);
+            if (redis.IsConnected)
+            {
+                MemoryCache.Default.Add(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = new DateTimeOffset(DateTime.Now).AddSeconds(rememberConfig.Expiry) });
 
-            var ms = new MemoryStream();
-            MessagePackSerializer.Get<T>().Pack(ms, obj);
+                using (var ms = new MemoryStream())
+                {
+                    MessagePackSerializer.Get<T>().Pack(ms, cacheItem);
 
-            await redis.GetDatabase().StringSetAsync(cacheKey, ms.ToArray());
+                    await redis.GetDatabase().StringSetAsync(cacheKey, ms.ToArray(), expiry: TimeSpan.FromSeconds(rememberConfig.Expiry));
+                }
+            }
         }
 
         public async Task<T> GetAsync<T>(string cacheKey)
         {
-            if (HttpRuntime.Cache[cacheKey] != null)
+            if (MemoryCache.Default[cacheKey] != null)
             {
-                return (T)HttpRuntime.Cache[cacheKey];
+                return (T)MemoryCache.Default[cacheKey];
             }
 
-            byte[] cacheItem = await redis.GetDatabase().StringGetAsync(cacheKey);
-
-            if (cacheItem != null)
+            if (redis.IsConnected)
             {
-                return MessagePackSerializer.Get<T>().Unpack(new MemoryStream(cacheItem));
+                byte[] cacheItemBytes = await redis.GetDatabase().StringGetAsync(cacheKey);
+
+                if (cacheItemBytes != null)
+                {
+                    var cacheItem = MessagePackSerializer.Get<T>().Unpack(new MemoryStream(cacheItemBytes));
+
+                    MemoryCache.Default.Add(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = new DateTimeOffset(DateTime.Now).AddSeconds(rememberConfig.Expiry) });
+
+                    return cacheItem;
+                }
             }
 
             return default(T);
         }
 
-        public async Task RemoveAsync(string cacheKey)
+        public async Task DeleteAsync(string cacheKey)
         {
-            HttpRuntime.Cache.Remove(cacheKey);
+            MemoryCache.Default.Remove(cacheKey);
+
+            if (redis.IsConnected)
+            {
+                await redis.GetDatabase().KeyDeleteAsync(cacheKey);
+                await redis.GetSubscriber().PublishAsync(DELETE_CHANNEL, cacheKey);
+            }
         }
     }
 }
