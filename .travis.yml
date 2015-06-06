@@ -1,0 +1,15 @@
+language: csharp
+solution: Remember.sln
+
+mono:
+  - latest
+
+install:
+  - nuget restore Remember.sln
+
+script:
+  - xbuild /p:Configuration=Release Remember.sln
+  - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./Remember.Tests/bin/Release/Remember.Tests.dll
+
+services:
+  - redis-server
