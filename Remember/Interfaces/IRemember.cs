@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Remember.Interfaces
 {
-    public interface IRemember
+    public interface IRemember : IDisposable
     {
         Task SaveAsync<T>(string cacheKey, T cacheItem);
 

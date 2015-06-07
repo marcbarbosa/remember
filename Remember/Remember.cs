@@ -118,5 +118,11 @@ namespace Remember
                 await redis.GetSubscriber().PublishAsync(DELETE_CHANNEL, cacheKey);
             }
         }
+
+        public void Dispose()
+        {
+            redis.Close();
+            redis.Dispose();
+        }
     }
 }

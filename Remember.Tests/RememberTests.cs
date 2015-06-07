@@ -1,4 +1,5 @@
 ﻿using Remember.Interfaces;
+using System;
 using System.Runtime.Caching;
 using Xunit;
 
@@ -6,7 +7,7 @@ namespace Remember.Tests
 {
     public class RememberTests
     {
-        public class Integration
+        public class Integration : IDisposable
         {
             private readonly IRemember remember = Remember.Instance;
 
@@ -45,6 +46,11 @@ namespace Remember.Tests
                 public string Password { get; set; }
 
                 public User InnerUser { get; set; }
+            }
+
+            public void Dispose()
+            {
+                remember.Dispose();
             }
         }
     }
