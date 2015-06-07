@@ -3,7 +3,7 @@ configuration: Release
 
 environment:
   COVERALLS_REPO_TOKEN:
-	secure: u6gVv4SNWKtYVaoBf/YE6iTQdYqxMXd3vXFlJ+feZikfTcpubLXulqz3DPQYMzeP
+    secure: u6gVv4SNWKtYVaoBf/YE6iTQdYqxMXd3vXFlJ+feZikfTcpubLXulqz3DPQYMzeP
 
 before_build:
 - nuget install redis-64 -excludeversion
