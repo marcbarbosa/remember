@@ -6,11 +6,11 @@ mono:
 
 install:
   - nuget restore Remember.sln
-  - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
+  - nuget install xunit.runner.console - Version 2.0.0 -OutputDirectory testrunner
 
 script:
   - xbuild /p:Configuration=Release Remember.sln
-  - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./Remember.Tests/bin/Release/Remember.Tests.dll
+  - mono ./testrunner/xunit.runner.console.2.0.0/tools/xunit.console.exe ./Remember.Tests/bin/Release/Remember.Tests.dll
 
 services:
   - redis-server
