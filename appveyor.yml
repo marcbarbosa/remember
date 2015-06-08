@@ -22,7 +22,8 @@ after_test:
 - packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
 
 artifacts:
-  - path: out\*.nupkg
+- path: Remember.nupkg
+  name: Remember NuGet package
 
 assembly_info:
   patch: true
@@ -36,4 +37,4 @@ deploy:
   server: 
   api_key:
     secure: Tly8BaBiF51tL82pKuqB0wczW5t+UgQltWtdjbfQFi7R6/eYH7+vg/4z5qjJomH6
-  artifact: /.*\.nupkg/
+  artifact: Remember.nupkg
