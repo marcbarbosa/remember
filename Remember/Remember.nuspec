@@ -16,6 +16,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Remember\bin\Release\Remember.dll" target="lib\net45"></file>
+    <file src="bin\Release\Remember.dll" target="lib\net45"></file>
   </files>
 </package>
