@@ -1,5 +1,4 @@
-﻿using Remember.Interfaces;
-using System;
+﻿using System;
 using System.Runtime.Caching;
 using Xunit;
 

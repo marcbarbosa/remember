@@ -1,5 +1,4 @@
 ﻿using MsgPack.Serialization;
-using Remember.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Configuration;

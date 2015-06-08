@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Remember.Interfaces
+namespace Remember
 {
     public interface IRemember : IDisposable
     {
