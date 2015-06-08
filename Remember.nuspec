@@ -4,16 +4,16 @@
     <id>Remember</id>
     <version>$version$</version>
     <authors>Marcelo Barbosa</authors>
-    <projectUrl>https://github.com/marcbarbosa/Remember</projectUrl>
+    <projectUrl>https://github.com/marcbarbosa/remember</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Distributed and local caching strategy for ASP.NET websites</description>
-    <tags>cache httpruntime.cache redis messagepack</tags>
+    <tags>cache memorycache redis messagepack</tags>
     <dependencies>
-      <dependency id="MsgPack.Cli" version="0.5.5" />
-      <dependency id="StackExchange.Redis" version="1.0.333" />
+      <dependency id="MsgPack.Cli" version="0.5.11" />
+      <dependency id="StackExchange.Redis" version="1.0.450" />
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Remember.dll" target="lib"></file>
+    <file src="bin\Release\Remember.dll" target="lib\net45"></file>
   </files>
 </package>
