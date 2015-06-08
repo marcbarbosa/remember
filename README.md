@@ -4,4 +4,4 @@ Remember
 [![Build Status](https://travis-ci.org/marcbarbosa/remember.svg?branch=master)](https://travis-ci.org/marcbarbosa/remember)
 [![Coverage Status](https://coveralls.io/repos/marcbarbosa/remember/badge.svg?branch=master)](https://coveralls.io/r/marcbarbosa/remember?branch=master)
 
-Distributed and local caching strategy for ASP.NET websites
+Two-layer caching strategy (MemoryCache + Redis) for ASP.NET applications
