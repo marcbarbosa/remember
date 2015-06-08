@@ -34,7 +34,6 @@ assembly_info:
 
 deploy:
   provider: NuGet
-  server: 
   api_key:
     secure: Tly8BaBiF51tL82pKuqB0wczW5t+UgQltWtdjbfQFi7R6/eYH7+vg/4z5qjJomH6
-  artifact: Remember.nupkg
+  artifact: /.*\.nupkg/
