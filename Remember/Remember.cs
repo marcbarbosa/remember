@@ -10,15 +10,17 @@ namespace Remember
 {
     public class Remember : IRemember
     {
-        private static ConnectionMultiplexer redis;
-
-        private static volatile Remember instance;
-        private static object syncRoot = new object();
+        private static readonly Lazy<Remember> instance = new Lazy<Remember>(() => new Remember());
+        
+        private readonly ConnectionMultiplexer redis;        
         
         private readonly RememberConfig rememberConfig;
+        
         private const string CONFIG_SECTION = "remember";
         
         private const string DELETE_CHANNEL = "remember_delete_channel";
+
+        public static Remember Instance { get { return instance.Value; } }
 
         public Remember()
         {
@@ -29,42 +31,6 @@ namespace Remember
             if (redis.IsConnected)
             {
                 redis.GetSubscriber().Subscribe(DELETE_CHANNEL, (channel, cacheKey) => MemoryCache.Default.Remove(cacheKey));
-            }
-        }
-
-        private ConnectionMultiplexer CreateRedisConnectionMultiplexer()
-        { 
-            var redisConfigurationOptions = new ConfigurationOptions 
-            { 
-                DefaultDatabase = rememberConfig.Database, 
-                AbortOnConnectFail = false, 
-                Password = rememberConfig.Password 
-            };
-
-            foreach (EndpointElement endpoint in rememberConfig.Endpoints)
-	        {
-                redisConfigurationOptions.EndPoints.Add(endpoint.Host, endpoint.Port);
-	        }
-
-            return ConnectionMultiplexer.Connect(redisConfigurationOptions);
-        }
-
-        public static Remember Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (syncRoot)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new Remember();
-                        }
-                    }
-                }
-
-                return instance;
             }
         }
 
@@ -122,6 +88,23 @@ namespace Remember
         {
             redis.Close();
             redis.Dispose();
+        }
+
+        private ConnectionMultiplexer CreateRedisConnectionMultiplexer()
+        { 
+            var redisConfigurationOptions = new ConfigurationOptions 
+            { 
+                DefaultDatabase = rememberConfig.Database, 
+                AbortOnConnectFail = false, 
+                Password = rememberConfig.Password 
+            };
+
+            foreach (EndpointElement endpoint in rememberConfig.Endpoints)
+	        {
+                redisConfigurationOptions.EndPoints.Add(endpoint.Host, endpoint.Port);
+	        }
+
+            return ConnectionMultiplexer.Connect(redisConfigurationOptions);
         }
     }
 }
