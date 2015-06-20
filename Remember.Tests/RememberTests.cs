@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Remember.Tests
@@ -11,17 +12,17 @@ namespace Remember.Tests
             private readonly IRemember remember = Remember.Instance;
 
             [Fact]
-            public void CallingAllMethods()
+            public async Task CallingAllMethods()
             {
                 var cacheKey = "user@domain.com";
                 var expectedInnerUser = new User { Email = "inneruser@domain.com", Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==" };
                 var expectedUser = new User { Email = cacheKey, Password = "Akcjhs876482u3jhKJc8d6f87234j2Bkjshdi==", InnerUser = expectedInnerUser };
 
-                var actual = remember.GetAsync<User>(cacheKey).Result;
+                var actual = await remember.GetAsync<User>(cacheKey);
                 Assert.Null(actual);
 
-                remember.SaveAsync<User>(cacheKey, expectedUser).Wait();
-                actual = remember.GetAsync<User>(cacheKey).Result;
+                await remember.SaveAsync<User>(cacheKey, expectedUser);
+                actual = await remember.GetAsync<User>(cacheKey);
                 Assert.NotNull(actual);
                 Assert.NotNull(actual.InnerUser);
                 Assert.Equal(expectedUser.Email, actual.Email);
@@ -30,11 +31,11 @@ namespace Remember.Tests
                 Assert.Equal(expectedInnerUser.Password, actual.InnerUser.Password);
 
                 MemoryCache.Default.Remove(cacheKey);
-                actual = remember.GetAsync<User>(cacheKey).Result;
+                actual = await remember.GetAsync<User>(cacheKey);
                 Assert.NotNull(actual);
 
-                remember.DeleteAsync(cacheKey).Wait();
-                actual = remember.GetAsync<User>(cacheKey).Result;
+                await remember.DeleteAsync(cacheKey);
+                actual = await remember.GetAsync<User>(cacheKey);
                 Assert.Null(actual);
             }
 
