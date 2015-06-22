@@ -1,0 +1,10 @@
+﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <configSections>
+    <section name="remember" type="Remember.RememberConfig, Remember" xdt:Transform="InsertIfMissing"></section>
+  </configSections>
+  <remember database="0" expiry="150" password="redisPASSWORD">
+    <endpoints>
+      <add host="127.0.0.1" port="6379" xdt:Transform="InsertIfMissing" />
+    </endpoints>
+  </remember>
+</configuration>
