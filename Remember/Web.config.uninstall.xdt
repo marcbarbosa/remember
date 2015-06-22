@@ -1,0 +1,6 @@
+﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <configSections>
+    <section name="remember" type="Remember.RememberConfig, Remember" xdt:Transform="Remove" xdt:Locator="Match(name)" />
+  </configSections>
+  <remember xdt:Transform="Remove" />
+</configuration>

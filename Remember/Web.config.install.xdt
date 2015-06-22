@@ -2,7 +2,7 @@
   <configSections xdt:Transform="InsertIfMissing">
     <section name="remember" type="Remember.RememberConfig, Remember" xdt:Transform="InsertIfMissing" />
   </configSections>
-  <remember database="0" expiry="150" password="redisPASSWORD" xdt:Transform="InsertIfMissing">
+  <remember database="0" expiry="150" password="" xdt:Transform="InsertIfMissing">
     <endpoints xdt:Transform="InsertIfMissing">
       <add host="127.0.0.1" port="6379" xdt:Transform="InsertIfMissing" />
     </endpoints>
