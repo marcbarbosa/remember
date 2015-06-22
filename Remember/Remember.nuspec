@@ -17,6 +17,6 @@
   </metadata>
   <files>
     <file src="bin\Release\Remember.dll" target="lib\net45"></file>
-    <file src="bin\Release\Web.config.install.xdt"></file>
+    <file src="bin\Release\Web.config.install.xdt" target="content\Web.config.install.xdt"></file>
   </files>
 </package>
