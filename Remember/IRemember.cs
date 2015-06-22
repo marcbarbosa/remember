@@ -5,7 +5,7 @@ namespace Remember
 {
     public interface IRemember : IDisposable
     {
-        Task SaveAsync<T>(string cacheKey, T cacheItem);
+        Task SaveAsync<T>(string cacheKey, T cacheValue);
 
         Task<T> GetAsync<T>(string cacheKey);
 

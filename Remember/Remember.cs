@@ -34,15 +34,15 @@ namespace Remember
             }
         }
 
-        public async Task SaveAsync<T>(string cacheKey, T cacheItem)
+        public async Task SaveAsync<T>(string cacheKey, T cacheValue)
         {
             if (redis.IsConnected)
             {
-                MemoryCache.Default.Add(cacheKey, cacheItem, new CacheItemPolicy { AbsoluteExpiration = new DateTimeOffset(DateTime.Now).AddSeconds(rememberConfig.Expiry) });
+                MemoryCache.Default.Add(cacheKey, cacheValue, new CacheItemPolicy { AbsoluteExpiration = new DateTimeOffset(DateTime.Now).AddSeconds(rememberConfig.Expiry) });
 
                 using (var ms = new MemoryStream())
                 {
-                    MessagePackSerializer.Get<T>().Pack(ms, cacheItem);
+                    MessagePackSerializer.Get<T>().Pack(ms, cacheValue);
 
                     await redis.GetDatabase().StringSetAsync(cacheKey, ms.ToArray(), expiry: TimeSpan.FromSeconds(rememberConfig.Expiry));
                 }
@@ -79,8 +79,11 @@ namespace Remember
 
             if (redis.IsConnected)
             {
-                await redis.GetDatabase().KeyDeleteAsync(cacheKey);
-                await redis.GetSubscriber().PublishAsync(DELETE_CHANNEL, cacheKey);
+                var keyDeleteTask = redis.GetDatabase().KeyDeleteAsync(cacheKey);
+                var publishTask = redis.GetSubscriber().PublishAsync(DELETE_CHANNEL, cacheKey);
+
+                await keyDeleteTask;
+                await publishTask;
             }
         }
 
