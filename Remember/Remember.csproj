@@ -55,6 +55,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Remember.nuspec" />
+    <None Include="Web.config.uninstall.xdt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Web.config.install.xdt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
