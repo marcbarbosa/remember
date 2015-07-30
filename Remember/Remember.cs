@@ -94,13 +94,17 @@ namespace Remember
         }
 
         private ConnectionMultiplexer CreateRedisConnectionMultiplexer()
-        { 
-            var redisConfigurationOptions = new ConfigurationOptions 
-            { 
-                DefaultDatabase = rememberConfig.Database, 
-                AbortOnConnectFail = false, 
-                Password = rememberConfig.Password 
+        {
+            var redisConfigurationOptions = new ConfigurationOptions
+            {
+                DefaultDatabase = rememberConfig.Database,
+                AbortOnConnectFail = false
             };
+
+            if (!string.IsNullOrWhiteSpace(rememberConfig.Password))
+            {
+                redisConfigurationOptions.Password = rememberConfig.Password;
+            }
 
             foreach (EndpointElement endpoint in rememberConfig.Endpoints)
 	        {
